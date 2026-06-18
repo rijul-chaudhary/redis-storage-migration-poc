@@ -1,19 +1,19 @@
-const redisAStorage = require("../storage/redisAStorage");
+const storageManager = require("../storage/storageManager");
 
 async function createUser(user) {
-    return redisAStorage.createUser(user);
+    return storageManager.createUser(user);
 }
 
 async function getUser(id) {
-    return redisAStorage.getUser(id);
+    return storageManager.getUser(id);
 }
 
 async function deleteUser(id) {
-    return redisAStorage.deleteUser(id);
+    return storageManager.deleteUser(id);
 }
 
 async function updateUser(id, user) {
-    return redisAStorage.updateUser(id, user);
+    return storageManager.updateUser(id, user);
 }
 
 module.exports = {

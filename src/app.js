@@ -1,5 +1,8 @@
 const express = require("express");
-const redisClient = require("./config/redis");
+
+const redisAClient = require("./config/redisAClient");
+const redisBClient = require("./config/redisBClient");
+
 const userRoutes = require("./routes/userRoutes");
 
 const app = express();
@@ -12,9 +15,11 @@ const PORT = 3000;
 
 async function startServer() {
     try {
-        await redisClient.connect();
+        await redisAClient.connect();
+        await redisBClient.connect();
 
         console.log("Connected to Redis A");
+        console.log("Connected to Redis B");
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);

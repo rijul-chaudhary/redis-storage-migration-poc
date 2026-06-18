@@ -1,4 +1,4 @@
-const redisClient = require("../config/redisAClient");
+const redisClient = require("../config/redisBClient");
 
 async function createUser(user) {
     const key = `user:${user.id}`;
