@@ -12,8 +12,13 @@ async function deleteUser(id) {
     return redisAStorage.deleteUser(id);
 }
 
+async function updateUser(id, user) {
+    return redisAStorage.updateUser(id, user);
+}
+
 module.exports = {
     createUser,
     getUser,
+    updateUser,
     deleteUser
 };

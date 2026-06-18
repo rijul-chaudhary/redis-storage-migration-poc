@@ -31,8 +31,31 @@ async function deleteUser(id) {
     return result > 0;
 }
 
+async function updateUser(id, updatedUser) {
+    const key = `user:${id}`;
+
+    const existingUser = await redisClient.get(key);
+
+    if (!existingUser) {
+        return null;
+    }
+
+    const user = {
+        id,
+        ...updatedUser
+    };
+
+    await redisClient.set(
+        key,
+        JSON.stringify(user)
+    );
+
+    return user;
+}
+
 module.exports = {
     createUser,
     getUser,
+    updateUser,
     deleteUser
 };
