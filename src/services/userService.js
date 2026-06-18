@@ -8,7 +8,12 @@ async function getUser(id) {
     return redisAStorage.getUser(id);
 }
 
+async function deleteUser(id) {
+    return redisAStorage.deleteUser(id);
+}
+
 module.exports = {
     createUser,
-    getUser
+    getUser,
+    deleteUser
 };

@@ -23,7 +23,16 @@ async function getUser(id) {
     return JSON.parse(data);
 }
 
+async function deleteUser(id) {
+    const key = `user:${id}`;
+
+    const result = await redisClient.del(key);
+
+    return result > 0;
+}
+
 module.exports = {
     createUser,
-    getUser
+    getUser,
+    deleteUser
 };
