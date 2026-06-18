@@ -7,9 +7,26 @@ const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
+const migrationRoutes = require("./routes/migrationRoutes");
+
 app.use(express.json());
 
 app.use("/users", userRoutes);
+
+app.use("/migrate", migrationRoutes);
+
+app.get("/", (req, res) => {
+    res.json({
+        service: "Redis Storage Migration POC",
+        status: "UP"
+    });
+});
+
+app.get("/health", (req, res) => {
+    res.json({
+        status: "UP"
+    });
+});
 
 const PORT = 3000;
 
