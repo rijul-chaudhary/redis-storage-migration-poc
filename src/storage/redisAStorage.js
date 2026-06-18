@@ -1,7 +1,25 @@
 const redisClient = require("../config/redisAClient");
 
+const redisBStorage = require("./redisBStorage");
+
+const {
+    shouldRedirectRedisAWrite,
+    logRedisAWrite
+} = require("../services/writeDetectionService");
+
 async function createUser(user) {
+
     const key = `user:${user.id}`;
+
+    if (shouldRedirectRedisAWrite()) {
+
+        logRedisAWrite(
+            "CREATE_USER",
+            key
+        );
+
+        return redisBStorage.createUser(user);
+    }
 
     await redisClient.set(
         key,
@@ -24,17 +42,44 @@ async function getUser(id) {
 }
 
 async function deleteUser(id) {
+
     const key = `user:${id}`;
 
-    const result = await redisClient.del(key);
+    if (shouldRedirectRedisAWrite()) {
+
+        logRedisAWrite(
+            "DELETE_USER",
+            key
+        );
+
+        return redisBStorage.deleteUser(id);
+    }
+
+    const result =
+        await redisClient.del(key);
 
     return result > 0;
 }
 
 async function updateUser(id, updatedUser) {
+
     const key = `user:${id}`;
 
-    const existingUser = await redisClient.get(key);
+    if (shouldRedirectRedisAWrite()) {
+
+        logRedisAWrite(
+            "UPDATE_USER",
+            key
+        );
+
+        return redisBStorage.updateUser(
+            id,
+            updatedUser
+        );
+    }
+
+    const existingUser =
+        await redisClient.get(key);
 
     if (!existingUser) {
         return null;

@@ -9,9 +9,13 @@ const app = express();
 
 const migrationRoutes = require("./routes/migrationRoutes");
 
+const legacyRoutes = require("./routes/legacyRoutes");
+
 app.use(express.json());
 
 app.use("/users", userRoutes);
+
+app.use("/legacy", legacyRoutes);
 
 app.use("/migrate", migrationRoutes);
 
