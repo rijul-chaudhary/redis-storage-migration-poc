@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redis Migration POC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Redis Migration POC</h1>
+
+<div class="form-container">
+
+    <input id="id" placeholder="ID">
+
+    <input id="name" placeholder="Name">
+
+    <input id="email" placeholder="Email">
+
+</div>
+
+<div class="button-group">
+
+    <h3>Normal Operations</h3>
+
+    <button onclick="createUser()">Create</button>
+
+    <button onclick="updateUser()">Update</button>
+
+    <button onclick="deleteUser()">Delete</button>
+
+</div>
+
+<div class="button-group">
+
+    <h3>Legacy Operations</h3>
+
+    <button onclick="legacyCreate()">Legacy Create</button>
+
+    <button onclick="legacyUpdate()">Legacy Update</button>
+
+    <button onclick="legacyDelete()">Legacy Delete</button>
+
+</div>
+
+<div class="button-group">
+
+    <h3>Migration</h3>
+
+    <button onclick="migrate()">Migrate Redis A → Redis B</button>
+
+</div>
+
+<div id="status"></div>
+
+<div class="tables">
+
+    <div>
+
+        <h2>Redis A</h2>
+
+        <table id="redisATable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <div>
+
+        <h2>Redis B</h2>
+
+        <table id="redisBTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

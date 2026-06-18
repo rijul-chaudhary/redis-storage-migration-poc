@@ -11,13 +11,25 @@ const migrationRoutes = require("./routes/migrationRoutes");
 
 const legacyRoutes = require("./routes/legacyRoutes");
 
+const adminRoutes = require("./routes/adminRoutes");
+
+const path = require("path");
+
 app.use(express.json());
 
 app.use("/users", userRoutes);
 
+app.use("/admin", adminRoutes);
+
 app.use("/legacy", legacyRoutes);
 
 app.use("/migrate", migrationRoutes);
+
+app.use(
+    express.static(
+        path.join(__dirname, "public")
+    )
+);
 
 app.get("/", (req, res) => {
     res.json({

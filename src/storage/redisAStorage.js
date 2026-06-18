@@ -98,9 +98,28 @@ async function updateUser(id, updatedUser) {
     return user;
 }
 
+async function getAllUsers() {
+
+    const keys = await redisClient.keys("user:*");
+
+    const users = [];
+
+    for (const key of keys) {
+
+        const data = await redisClient.get(key);
+
+        if (data) {
+            users.push(JSON.parse(data));
+        }
+    }
+
+    return users;
+}
+
 module.exports = {
     createUser,
     getUser,
+    getAllUsers,
     updateUser,
     deleteUser
 };
