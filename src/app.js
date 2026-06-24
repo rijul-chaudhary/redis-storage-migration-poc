@@ -17,6 +17,8 @@ const legacyRoutes = require("./routes/legacyRoutes");
 
 const adminRoutes = require("./routes/adminRoutes");
 
+const {startRedisACDCListener} = require("./cdc/redisAChangeListener");
+
 const path = require("path");
 
 
@@ -59,6 +61,8 @@ async function startServer() {
     try {
         await redisAClient.connect();
         await redisBClient.connect();
+
+        await startRedisACDCListener();
 
         console.log("Connected to Redis A");
         console.log("Connected to Redis B");
