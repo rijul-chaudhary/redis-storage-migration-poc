@@ -1,12 +1,9 @@
-const redisAClient =
-    require("../config/redisAClient");
+const redisAClient = require("../config/redisAClient");
 
 const {
     processSetEvent,
     processDeleteEvent
-} = require(
-    "../services/redisSyncService"
-);
+} = require("../services/redisSyncService");
 
 async function startRedisACDCListener() {
 

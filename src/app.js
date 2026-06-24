@@ -19,6 +19,8 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const {startRedisACDCListener} = require("./cdc/redisAChangeListener");
 
+const conflictRoutes = require("./routes/conflictRoutes");
+
 const path = require("path");
 
 
@@ -41,6 +43,8 @@ app.use(
         path.join(__dirname, "public")
     )
 );
+
+app.use("/conflicts", conflictRoutes);
 
 app.get("/", (req, res) => {
     res.json({

@@ -61,11 +61,11 @@ function setStatus(message) {
     ).innerText = message;
 }
 
-async function createUser() {
+async function appACreate() {
 
     const user = getUserInput();
 
-    await fetch("/users", {
+    await fetch("/appA/users", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -73,16 +73,16 @@ async function createUser() {
         body: JSON.stringify(user)
     });
 
-    setStatus("User created in Redis B");
+    setStatus("User created in App A");
 
     refreshTables();
 }
 
-async function updateUser() {
+async function appAUpdate() {
 
     const user = getUserInput();
 
-    await fetch(`/users/${user.id}`, {
+    await fetch(`/appA/users/${user.id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
@@ -93,29 +93,29 @@ async function updateUser() {
         })
     });
 
-    setStatus("User updated in Redis B");
+    setStatus("User updated in App A");
 
     refreshTables();
 }
 
-async function deleteUser() {
+async function appADelete() {
 
     const user = getUserInput();
 
-    await fetch(`/users/${user.id}`, {
+    await fetch(`/appA/users/${user.id}`, {
         method: "DELETE"
     });
 
-    setStatus("User deleted from Redis B");
+    setStatus("User deleted from App A");
 
     refreshTables();
 }
 
-async function legacyCreate() {
+async function appBCreate() {
 
     const user = getUserInput();
 
-    await fetch("/legacy/users", {
+    await fetch("/appB/users", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -123,18 +123,16 @@ async function legacyCreate() {
         body: JSON.stringify(user)
     });
 
-    setStatus(
-        "⚠ Redis A write detected. Redirected to Redis B."
-    );
+    setStatus("User created in App B");
 
     refreshTables();
 }
 
-async function legacyUpdate() {
+async function appBUpdate() {
 
     const user = getUserInput();
 
-    await fetch(`/legacy/users/${user.id}`, {
+    await fetch(`/appB/users/${user.id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
@@ -145,24 +143,20 @@ async function legacyUpdate() {
         })
     });
 
-    setStatus(
-        "⚠ Redis A update detected. Redirected to Redis B."
-    );
+    setStatus("User updated in App B");
 
     refreshTables();
 }
 
-async function legacyDelete() {
+async function appBDelete() {
 
     const user = getUserInput();
 
-    await fetch(`/legacy/users/${user.id}`, {
+    await fetch(`/appB/users/${user.id}`, {
         method: "DELETE"
     });
 
-    setStatus(
-        "⚠ Redis A delete detected. Redirected to Redis B."
-    );
+    setStatus("User deleted from App B");
 
     refreshTables();
 }

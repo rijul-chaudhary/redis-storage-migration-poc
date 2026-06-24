@@ -1,22 +1,58 @@
-const redisAClient = require("../config/redisAClient");
-const redisBClient = require("../config/redisBClient");
+const redisAClient =
+    require("../config/redisAClient");
+
+const redisBClient =
+    require("../config/redisBClient");
+
+const conflictService =
+    require("./conflictService");
 
 async function replicateSet(key) {
 
-    const value =
+    const redisAValue =
         await redisAClient.get(key);
 
-    if (!value) {
+    if (!redisAValue) {
         return;
     }
 
-    await redisBClient.set(
+    const redisBValue =
+        await redisBClient.get(key);
+
+    if (!redisBValue) {
+
+        await redisBClient.set(
+            key,
+            redisAValue
+        );
+
+        console.log(
+            `[CDC REPLICATION] ${key} synced to Redis B`
+        );
+
+        return;
+    }
+
+    if (redisAValue === redisBValue) {
+
+        console.log(
+            `[CDC SYNCED] ${key} already identical`
+        );
+
+        return;
+    }
+
+    conflictService.addConflict({
+        source: "CDC",
         key,
-        value
-    );
+        redisA:
+            JSON.parse(redisAValue),
+        redisB:
+            JSON.parse(redisBValue)
+    });
 
     console.log(
-        `[CDC REPLICATION] ${key} synced to Redis B`
+        `[CDC CONFLICT] ${key}`
     );
 }
 

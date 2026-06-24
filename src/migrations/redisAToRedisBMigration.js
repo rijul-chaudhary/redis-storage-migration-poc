@@ -1,8 +1,7 @@
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
 
-const conflictService =
-require("../services/conflictService");
+const conflictService = require("../services/conflictService");
 
 async function migrateUsers() {
 
@@ -59,15 +58,10 @@ for (const key of keys) {
     conflictCount++;
 
     conflicts.push({
+        source: "MIGRATION",
         key,
-        redisA:
-            JSON.parse(
-                sourceValue
-            ),
-        redisB:
-            JSON.parse(
-                destinationValue
-            )
+        redisA: JSON.parse(sourceValue),
+        redisB: JSON.parse(destinationValue)
     });
 
     console.log(
@@ -75,7 +69,7 @@ for (const key of keys) {
     );
 }
 
-conflictService.setConflicts(
+conflictService.setMigrationConflicts(
     conflicts
 );
 

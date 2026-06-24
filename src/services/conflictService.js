@@ -1,46 +1,79 @@
 let pendingConflicts = [];
 
-function setConflicts(conflicts) {
-    pendingConflicts = conflicts;
+function setMigrationConflicts(conflicts) {
+
+    pendingConflicts =
+        pendingConflicts.filter(
+            conflict =>
+                conflict.source !==
+                "MIGRATION"
+        );
+
+    pendingConflicts.push(
+        ...conflicts
+    );
+}
+
+function addConflict(conflict) {
+
+    const existingConflict =
+    pendingConflicts.find(
+        item =>
+            item.key === conflict.key &&
+            item.source === conflict.source
+    );
+
+    if (existingConflict) {
+        return;
+    }
+
+    pendingConflicts.push(conflict);
 }
 
 function getConflicts() {
+
     return pendingConflicts;
 }
 
 function getConflict(key) {
 
-    console.log(
-        "Searching Conflict:",
-        key
-    );
-
     return pendingConflicts.find(
-        conflict => conflict.key === key
+        conflict =>
+            conflict.key === key
     );
 }
 
 function removeConflict(key) {
 
-    console.log(
-        "Before Remove:",
-        pendingConflicts.length
-    );
-
     pendingConflicts =
         pendingConflicts.filter(
-            conflict => conflict.key !== key
+            conflict =>
+                conflict.key !== key
         );
+}
 
-    console.log(
-        "After Remove:",
-        pendingConflicts.length
+function getMigrationConflicts() {
+
+    return pendingConflicts.filter(
+        conflict =>
+            conflict.source === "MIGRATION"
+    );
+}
+
+function getCdcConflicts() {
+
+    return pendingConflicts.filter(
+        conflict =>
+            conflict.source === "CDC"
     );
 }
 
 module.exports = {
-    setConflicts,
+    setMigrationConflicts,
+    addConflict,
     getConflicts,
     getConflict,
-    removeConflict
+    removeConflict,
+    getMigrationConflicts,
+    getCdcConflicts
 };
