@@ -1,25 +1,8 @@
 const redisClient = require("../config/redisAClient");
 
-const redisBStorage = require("./redisBStorage");
-
-const {
-    shouldRedirectRedisAWrite,
-    logRedisAWrite
-} = require("../services/writeDetectionService");
-
 async function createUser(user) {
 
     const key = `user:${user.id}`;
-
-    if (shouldRedirectRedisAWrite()) {
-
-        logRedisAWrite(
-            "CREATE_USER",
-            key
-        );
-
-        return redisBStorage.createUser(user);
-    }
 
     await redisClient.set(
         key,
@@ -30,9 +13,11 @@ async function createUser(user) {
 }
 
 async function getUser(id) {
+
     const key = `user:${id}`;
 
-    const data = await redisClient.get(key);
+    const data =
+        await redisClient.get(key);
 
     if (!data) {
         return null;
@@ -45,16 +30,6 @@ async function deleteUser(id) {
 
     const key = `user:${id}`;
 
-    if (shouldRedirectRedisAWrite()) {
-
-        logRedisAWrite(
-            "DELETE_USER",
-            key
-        );
-
-        return redisBStorage.deleteUser(id);
-    }
-
     const result =
         await redisClient.del(key);
 
@@ -64,19 +39,6 @@ async function deleteUser(id) {
 async function updateUser(id, updatedUser) {
 
     const key = `user:${id}`;
-
-    if (shouldRedirectRedisAWrite()) {
-
-        logRedisAWrite(
-            "UPDATE_USER",
-            key
-        );
-
-        return redisBStorage.updateUser(
-            id,
-            updatedUser
-        );
-    }
 
     const existingUser =
         await redisClient.get(key);
@@ -100,16 +62,20 @@ async function updateUser(id, updatedUser) {
 
 async function getAllUsers() {
 
-    const keys = await redisClient.keys("user:*");
+    const keys =
+        await redisClient.keys("user:*");
 
     const users = [];
 
     for (const key of keys) {
 
-        const data = await redisClient.get(key);
+        const data =
+            await redisClient.get(key);
 
         if (data) {
-            users.push(JSON.parse(data));
+            users.push(
+                JSON.parse(data)
+            );
         }
     }
 

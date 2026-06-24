@@ -1,5 +1,9 @@
 const express = require("express");
 
+const appARoutes = require("./routes/appARoutes");
+
+const appBRoutes = require("./routes/appBRoutes");
+
 const redisAClient = require("./config/redisAClient");
 const redisBClient = require("./config/redisBClient");
 
@@ -15,7 +19,12 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const path = require("path");
 
+
 app.use(express.json());
+
+app.use("/appA", appARoutes);
+
+app.use("/appB", appBRoutes);
 
 app.use("/users", userRoutes);
 
