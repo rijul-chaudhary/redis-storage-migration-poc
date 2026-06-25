@@ -1,25 +1,20 @@
 const express = require("express");
 
 const appARoutes = require("./routes/appARoutes");
-
 const appBRoutes = require("./routes/appBRoutes");
 
 const redisAClient = require("./config/redisAClient");
 const redisBClient = require("./config/redisBClient");
 
-const userRoutes = require("./routes/userRoutes");
-
 const app = express();
 
 const migrationRoutes = require("./routes/migrationRoutes");
 
-const legacyRoutes = require("./routes/legacyRoutes");
-
 const adminRoutes = require("./routes/adminRoutes");
 
-const {startRedisACDCListener} = require("./cdc/redisAChangeListener");
-
 const conflictRoutes = require("./routes/conflictRoutes");
+
+const {startRedisACDCListener} = require("./cdc/redisAChangeListener");
 
 const path = require("path");
 
@@ -30,11 +25,7 @@ app.use("/appA", appARoutes);
 
 app.use("/appB", appBRoutes);
 
-app.use("/users", userRoutes);
-
 app.use("/admin", adminRoutes);
-
-app.use("/legacy", legacyRoutes);
 
 app.use("/migrate", migrationRoutes);
 
