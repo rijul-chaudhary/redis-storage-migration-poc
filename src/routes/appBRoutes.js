@@ -20,7 +20,7 @@ router.post("/users", async (req, res) => {
         console.error(error);
 
         res.status(500).json({
-            error: "Failed to create user"
+            error: error.message
         });
     }
 });
@@ -85,7 +85,7 @@ router.put("/users/:id", async (req, res) => {
         if (!user) {
 
             return res.status(404).json({
-                error: "User not found"
+                error: `User ID ${req.params.id} does not exist`
             });
         }
 
@@ -113,7 +113,7 @@ router.delete("/users/:id", async (req, res) => {
         if (!deleted) {
 
             return res.status(404).json({
-                error: "User not found"
+                error: `User ID ${req.params.id} does not exist`
             });
         }
 

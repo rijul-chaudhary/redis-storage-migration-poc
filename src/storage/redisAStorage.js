@@ -4,6 +4,15 @@ async function createUser(user) {
 
     const key = `user:${user.id}`;
 
+    const existingUser = await redisClient.get(key);
+
+    if (existingUser) {
+
+        throw new Error(
+            `User ID ${user.id} already exists`
+        );
+    }
+
     await redisClient.set(
         key,
         JSON.stringify(user)
