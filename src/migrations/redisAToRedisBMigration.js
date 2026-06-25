@@ -1,33 +1,31 @@
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
 
+const conflictService = require("../services/conflictService");
+
 async function migrateUsers() {
 
-    const keys = await redisAClient.keys("user:*");
+const keys = await redisAClient.keys("user:*");
 
-    let migratedCount = 0;
-    let conflictCount = 0;
+let migratedCount = 0;
+let synchronizedCount = 0;
+let conflictCount = 0;
 
-    console.log(
-        `Found ${keys.length} users to migrate`
-    );
+const conflicts = [];
 
-    for (const key of keys) {
+console.log(
+    `Found ${keys.length} users to migrate`
+);
 
-        const sourceValue =
-            await redisAClient.get(key);
+for (const key of keys) {
 
-        const destinationValue =
-            await redisBClient.get(key);
+    const sourceValue =
+        await redisAClient.get(key);
 
-        if (destinationValue) {
+    const destinationValue =
+        await redisBClient.get(key);
 
-            conflictCount++;
-
-            console.log(
-                `[CONFLICT] ${key} already exists in Redis B`
-            );
-        }
+    if (!destinationValue) {
 
         await redisBClient.set(
             key,
@@ -39,22 +37,66 @@ async function migrateUsers() {
         console.log(
             `[MIGRATED] ${key}`
         );
+
+        continue;
     }
 
-    const summary = {
-        totalUsersFound: keys.length,
-        migratedUsers: migratedCount,
-        conflictsDetected: conflictCount
-    };
+    if (
+        sourceValue ===
+        destinationValue
+    ) {
+
+        synchronizedCount++;
+
+        console.log(
+            `[SYNCED] ${key}`
+        );
+
+        continue;
+    }
+
+    conflictCount++;
+
+    conflicts.push({
+        source: "MIGRATION",
+        key,
+        redisA: JSON.parse(sourceValue),
+        redisB: JSON.parse(destinationValue)
+    });
 
     console.log(
-        "Migration Summary:",
-        summary
+        `[CONFLICT] ${key}`
     );
+}
 
-    return summary;
+conflictService.setMigrationConflicts(
+    conflicts
+);
+
+const summary = {
+
+    totalUsersFound:
+        keys.length,
+
+    migratedUsers:
+        migratedCount,
+
+    synchronizedUsers:
+        synchronizedCount,
+
+    conflictsDetected:
+        conflictCount
+};
+
+console.log(
+    "Migration Summary:",
+    summary
+);
+
+return summary;
+
 }
 
 module.exports = {
-    migrateUsers
+migrateUsers
 };

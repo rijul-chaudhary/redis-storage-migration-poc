@@ -4,48 +4,32 @@ const router = express.Router();
 
 const conflictService = require("../services/conflictService");
 
-const {migrateUsers} = require("../migrations/redisAToRedisBMigration");
-
 const redisBClient = require("../config/redisBClient");
 
-router.post("/", async (req, res) => {
-
-    try {
-
-        const result =
-            await migrateUsers();
-
-        res.status(200).json({
-            message: "Migration completed successfully",
-            summary: result
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Migration Error:",
-            error
-        );
-
-        res.status(500).json({
-            error: "Migration failed"
-        });
-    }
-});
-
 router.get(
-    "/conflicts",
+    "/migration",
     (req, res) => {
 
         res.status(200).json({
             conflicts:
-                conflictService.getConflicts()
+                conflictService.getMigrationConflicts()
+        });
+    }
+);
+
+router.get(
+    "/cdc",
+    (req, res) => {
+
+        res.status(200).json({
+            conflicts:
+                conflictService.getCdcConflicts()
         });
     }
 );
 
 router.post(
-    "/resolve",
+    "/migration/resolve",
     async (req, res) => {
 
         try {
@@ -76,16 +60,58 @@ router.post(
                         conflict.redisA
                     )
                 );
-
-                console.log(
-                    `[RESOLVED] ${key} overwritten in Redis B`
-                );
             }
 
-            if (action === "skip") {
+            conflictService.removeConflict(
+                key
+            );
 
-                console.log(
-                    `[SKIPPED] ${key}`
+            res.status(200).json({
+                message:
+                    `Migration conflict resolved using ${action}`
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                error:
+                    "Migration conflict resolution failed"
+            });
+        }
+    }
+);
+
+router.post(
+    "/cdc/resolve",
+    async (req, res) => {
+
+        try {
+
+            const {
+                key,
+                action
+            } = req.body;
+
+            const conflict =
+                conflictService.getConflict(
+                    key
+                );
+
+            if (!conflict) {
+
+                return res.status(404).json({
+                    error:
+                        "Conflict not found"
+                });
+            }
+
+            if (action === "overwrite") {
+
+                await redisBClient.set(
+                    key,
+                    JSON.stringify(
+                        conflict.redisA
+                    )
                 );
             }
 
@@ -95,19 +121,14 @@ router.post(
 
             res.status(200).json({
                 message:
-                    `Conflict resolved using ${action}`
+                    `CDC conflict resolved using ${action}`
             });
 
         } catch (error) {
 
-            console.error(
-                "Conflict Resolution Error:",
-                error
-            );
-
             res.status(500).json({
                 error:
-                    "Conflict resolution failed"
+                    "CDC conflict resolution failed"
             });
         }
     }

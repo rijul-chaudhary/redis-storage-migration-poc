@@ -1,96 +1,116 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
-    <title>Redis Migration POC</title>
+    <title>Redis Migration & CDC POC</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<h1>Redis Migration POC</h1>
+<h1>Redis Migration & CDC POC</h1>
 
-<div class="form-container">
+<div class="app-sections">
 
-    <input id="id" placeholder="ID">
+<div class="app-card">
 
-    <input id="name" placeholder="Name">
+    <h2>Application A (Redis A)</h2>
 
-    <input id="email" placeholder="Email">
+    <input id="appAId" placeholder="ID">
+    <input id="appAName" placeholder="Name">
+    <input id="appAEmail" placeholder="Email">
 
-</div>
-
-<div class="button-group">
-
-    <h3>Normal Operations</h3>
-
-    <button onclick="createUser()">Create</button>
-
-    <button onclick="updateUser()">Update</button>
-
-    <button onclick="deleteUser()">Delete</button>
+    <div>
+        <button onclick="appACreate()">Create</button>
+        <button onclick="appAUpdate()">Update</button>
+        <button onclick="appADelete()">Delete</button>
+    </div>
 
 </div>
 
-<div class="button-group">
+<div class="app-card">
 
-    <h3>Legacy Operations</h3>
+    <h2>Application B (Redis B)</h2>
 
-    <button onclick="legacyCreate()">Legacy Create</button>
+    <input id="appBId" placeholder="ID">
+    <input id="appBName" placeholder="Name">
+    <input id="appBEmail" placeholder="Email">
 
-    <button onclick="legacyUpdate()">Legacy Update</button>
+    <div>
+        <button onclick="appBCreate()">Create</button>
+        <button onclick="appBUpdate()">Update</button>
+        <button onclick="appBDelete()">Delete</button>
+    </div>
 
-    <button onclick="legacyDelete()">Legacy Delete</button>
+</div>
 
 </div>
 
-<div class="button-group">
+<hr>
 
-    <h3>Migration</h3>
+<h2>Migration</h2>
 
-    <button onclick="migrate()">Migrate Redis A → Redis B</button>
-
-</div>
+<button onclick="migrate()">
+    Migrate Redis A → Redis B
+</button>
 
 <div id="status"></div>
 
+<hr>
+
+<h2>Migration Conflicts</h2>
+
+<div id="migrationConflicts"></div>
+
+<hr>
+
+<h2>CDC Conflicts</h2>
+
+<div id="cdcConflicts"></div>
+
+<hr>
+
 <div class="tables">
 
-    <div>
+<div>
 
-        <h2>Redis A</h2>
+    <h2>Redis A</h2>
 
-        <table id="redisATable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <table id="redisATable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-    </div>
+</div>
 
-    <div>
+<div>
 
-        <h2>Redis B</h2>
+    <h2>Redis B</h2>
 
-        <table id="redisBTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <table id="redisBTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-    </div>
+</div>
 
 </div>
 
 <script src="app.js"></script>
 
 </body>
+
 </html>
