@@ -1,0 +1,55 @@
+services:
+
+  redis-a:
+    image: redis:8.8.0
+    container_name: redis-a
+
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis-a-data:/data
+      - ./docker/redis-a.conf:/usr/local/etc/redis/redis.conf
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
+
+  redis-b:
+    image: redis:8.8.0
+    container_name: redis-b
+
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+
+    ports:
+      - "6380:6379"
+
+    volumes:
+      - redis-b-data:/data
+      - ./docker/redis-b.conf:/usr/local/etc/redis/redis.conf
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
+
+volumes:
+  redis-a-data:
+  redis-b-data:
