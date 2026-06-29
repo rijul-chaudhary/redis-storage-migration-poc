@@ -57,6 +57,20 @@ async function startServer() {
         await redisAClient.connect();
         await redisBClient.connect();
 
+        await redisAClient.configSet(
+            "notify-keyspace-events",
+            "KEA"
+        );
+
+        const result = await redisAClient.configGet(
+            "notify-keyspace-events"
+        );
+
+        console.log(
+            "Keyspace Notifications:", 
+            result
+        );
+
         await startRedisACDCListener();
 
         console.log("Connected to Redis A");
