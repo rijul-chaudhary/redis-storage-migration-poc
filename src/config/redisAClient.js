@@ -4,8 +4,8 @@ const redisAClient = createClient({
     url: process.env.REDIS_A_URL
 });
 
-redisAClient.on("error", (err) => {
-    console.error("Redis A Error:", err);
+redisAClient.on("error", () => {
+    console.log("Redis A unavailable. Waiting for Redis...");
 });
 
 module.exports = redisAClient;
