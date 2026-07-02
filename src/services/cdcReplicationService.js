@@ -1,23 +1,19 @@
-const redisAClient =
-    require("../config/redisAClient");
+const {areObjectsEqual} = require("./objectComparisonService");
 
-const redisBClient =
-    require("../config/redisBClient");
+const redisAClient = require("../config/redisAClient");
+const redisBClient = require("../config/redisBClient");
 
-const conflictService =
-    require("./conflictService");
+const conflictService = require("./conflictService");
 
 async function replicateSet(key) {
 
-    const redisAValue =
-        await redisAClient.get(key);
+    const redisAValue = await redisAClient.get(key);
 
     if (!redisAValue) {
         return;
     }
 
-    const redisBValue =
-        await redisBClient.get(key);
+    const redisBValue = await redisBClient.get(key);
 
     if (!redisBValue) {
 
@@ -33,11 +29,18 @@ async function replicateSet(key) {
         return;
     }
 
-    if (redisAValue === redisBValue) {
+    const redisAObject = JSON.parse(redisAValue);
 
-        console.log(
-            `[CDC SYNCED] ${key} already identical`
-        );
+    const redisBObject = JSON.parse(redisBValue);
+
+    if (
+    areObjectsEqual(
+        redisAObject,
+        redisBObject
+        )
+    ) {
+
+    console.log(`[CDC SYNCED] ${key} already identical`);
 
         return;
     }
@@ -45,24 +48,18 @@ async function replicateSet(key) {
     conflictService.addConflict({
         source: "CDC",
         key,
-        redisA:
-            JSON.parse(redisAValue),
-        redisB:
-            JSON.parse(redisBValue)
+        redisA: redisAObject,
+        redisB: redisBObject
     });
 
-    console.log(
-        `[CDC CONFLICT] ${key}`
-    );
+    console.log(`[CDC CONFLICT] ${key}`);
 }
 
 async function replicateDelete(key) {
 
     await redisBClient.del(key);
 
-    console.log(
-        `[CDC REPLICATION] ${key} deleted from Redis B`
-    );
+    console.log(`[CDC REPLICATION] ${key} deleted from Redis B`);
 }
 
 module.exports = {
