@@ -1,3 +1,5 @@
+const {areObjectsEqual} = require("../services/objectComparisonService");
+
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
 
@@ -13,17 +15,13 @@ let conflictCount = 0;
 
 const conflicts = [];
 
-console.log(
-    `Found ${keys.length} users to migrate`
-);
+console.log(`Found ${keys.length} users to migrate`);
 
 for (const key of keys) {
 
-    const sourceValue =
-        await redisAClient.get(key);
+    const sourceValue = await redisAClient.get(key);
 
-    const destinationValue =
-        await redisBClient.get(key);
+    const destinationValue = await redisBClient.get(key);
 
     if (!destinationValue) {
 
@@ -41,10 +39,11 @@ for (const key of keys) {
         continue;
     }
 
-    if (
-        sourceValue ===
-        destinationValue
-    ) {
+    const sourceObject = JSON.parse(sourceValue);
+
+    const destinationObject = JSON.parse(destinationValue);
+
+    if (areObjectsEqual(sourceObject, destinationObject)) {
 
         synchronizedCount++;
 
@@ -60,18 +59,14 @@ for (const key of keys) {
     conflicts.push({
         source: "MIGRATION",
         key,
-        redisA: JSON.parse(sourceValue),
-        redisB: JSON.parse(destinationValue)
+        redisA: sourceObject,
+        redisB: destinationObject
     });
 
-    console.log(
-        `[CONFLICT] ${key}`
-    );
+    console.log(`[CONFLICT] ${key}`);
 }
 
-conflictService.setMigrationConflicts(
-    conflicts
-);
+conflictService.setMigrationConflicts(conflicts);
 
 const summary = {
 
@@ -88,10 +83,7 @@ const summary = {
         conflictCount
 };
 
-console.log(
-    "Migration Summary:",
-    summary
-);
+console.log("Migration Summary:", summary);
 
 return summary;
 
