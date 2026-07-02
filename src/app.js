@@ -38,17 +38,26 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/conflicts", conflictRoutes);
 
-app.get("/", (req, res) => {
-    res.json({
-        service: "Redis Storage Migration POC",
-        status: "UP"
-    });
-});
-
 app.get("/health", (req, res) => {
+
+    const redisAHealthy = redisAClient.isReady;
+    const redisBHealthy = redisBClient.isReady;
+
+    let overallStatus = "UP";
+
+    if (!redisAHealthy && !redisBHealthy) {
+        overallStatus = "DOWN";
+    }
+    else if (!redisAHealthy || !redisBHealthy) {
+        overallStatus = "DEGRADED";
+    }
+
     res.json({
-        status: "UP"
+        status: overallStatus,
+        redisA: redisAHealthy ? "connected" : "disconnected",
+        redisB: redisBHealthy ? "connected" : "disconnected"
     });
+
 });
 
 const PORT = Number(process.env.PORT);
