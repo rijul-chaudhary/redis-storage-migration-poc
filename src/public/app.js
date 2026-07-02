@@ -404,15 +404,27 @@ async function loadConflicts() {
 
                     <h3>${conflict.key}</h3>
 
-                    <p>
-                        Redis A:
-                        ${conflict.redisA.name}
-                    </p>
+                    <div class="conflict-side">
 
-                    <p>
-                        Redis B:
-                        ${conflict.redisB.name}
-                    </p>
+                        <h4>Redis A</h4>
+
+                        <p>ID: ${conflict.redisA.id}</p>
+                        <p>Name: ${conflict.redisA.name}</p>
+                        <p>Email: ${conflict.redisA.email}</p>
+
+                    </div>
+
+                    <div class="conflict-side">
+
+                        <h4>Redis B</h4>
+
+                        <p>ID: ${conflict.redisB.id}</p>
+                        <p>Name: ${conflict.redisB.name}</p>
+                        <p>Email: ${conflict.redisB.email}</p>
+
+                    </div>
+
+                    </div>
 
                     <button
                         onclick="
