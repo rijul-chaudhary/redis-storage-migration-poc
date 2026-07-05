@@ -46,6 +46,12 @@ function addConflict(conflict) {
         destinationData:
             conflict.destinationData,
 
+        sourceMetadata:
+            conflict.sourceMetadata,
+
+        destinationMetadata:
+            conflict.destinationMetadata,
+
         sourceSchema:
             conflict.sourceSchema,
 

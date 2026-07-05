@@ -1,5 +1,6 @@
 const {areSchemasCompatible} = require("../services/schemaCompatibilityService");
 const {areObjectsEqual} = require("../services/objectComparisonService");
+const {buildMetadata} = require("../services/metadataService");
 
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
@@ -74,6 +75,12 @@ async function migrateUsers() {
                 destinationData:
                     destinationObject,
 
+                sourceMetadata:
+                    buildMetadata(sourceObject),
+
+                destinationMetadata:
+                    buildMetadata(destinationObject),
+
                 sourceSchema:
                     schemaAnalysis.sourceFields,
 
@@ -115,6 +122,12 @@ async function migrateUsers() {
             sourceData: sourceObject,
 
             destinationData: destinationObject,
+
+            sourceMetadata:
+                buildMetadata(sourceObject),
+
+            destinationMetadata:
+                buildMetadata(destinationObject),
 
             sourceSchema: schemaAnalysis.sourceFields,
 

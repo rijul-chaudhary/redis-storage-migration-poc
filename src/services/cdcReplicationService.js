@@ -1,5 +1,6 @@
 const {areSchemasCompatible} = require("./schemaCompatibilityService");
 const {areObjectsEqual} = require("./objectComparisonService");
+const {buildMetadata} = require("./metadataService");
 
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
@@ -62,6 +63,12 @@ async function replicateSet(key) {
             destinationData:
                 redisBObject,
 
+            sourceMetadata:
+                buildMetadata(redisAObject),
+
+            destinationMetadata:
+                buildMetadata(redisBObject),
+
             sourceSchema:
                 schemaAnalysis.sourceFields,
 
@@ -103,8 +110,15 @@ async function replicateSet(key) {
 
         destinationData: redisBObject,
 
+        sourceMetadata:
+            buildMetadata(redisAObject),
+
+        destinationMetadata:
+            buildMetadata(redisBObject),
+
         sourceSchema:
             schemaAnalysis.sourceFields,
+            
         destinationSchema:
             schemaAnalysis.destinationFields,
     });
