@@ -1,3 +1,4 @@
+const {areSchemasCompatible} = require("../services/schemaCompatibilityService");
 const {areObjectsEqual} = require("../services/objectComparisonService");
 
 const redisAClient = require("../config/redisAClient");
@@ -7,87 +8,142 @@ const conflictService = require("../services/conflictService");
 
 async function migrateUsers() {
 
-const keys = await redisAClient.keys("user:*");
+    conflictService.clearMigrationConflicts();
 
-let migratedCount = 0;
-let synchronizedCount = 0;
-let conflictCount = 0;
+    const keys = await redisAClient.keys("user:*");
 
-const conflicts = [];
+    let migratedCount = 0;
+    let synchronizedCount = 0;
+    let conflictCount = 0;
 
-console.log(`Found ${keys.length} users to migrate`);
+    console.log(`Found ${keys.length} users to migrate`);
 
-for (const key of keys) {
+    for (const key of keys) {
 
-    const sourceValue = await redisAClient.get(key);
+        const sourceValue = await redisAClient.get(key);
 
-    const destinationValue = await redisBClient.get(key);
+        const destinationValue = await redisBClient.get(key);
 
-    if (!destinationValue) {
+        if (!destinationValue) {
 
-        await redisBClient.set(
+            await redisBClient.set(
+                key,
+                sourceValue
+            );
+
+            migratedCount++;
+
+            console.log(
+                `[MIGRATED] ${key}`
+            );
+
+            continue;
+        }
+
+        const sourceObject = JSON.parse(sourceValue);
+        const destinationObject = JSON.parse(destinationValue);
+
+        const schemaAnalysis =
+            areSchemasCompatible(
+                sourceObject,
+                destinationObject
+            );
+
+        if (
+            !schemaAnalysis.compatible
+        ) {
+
+            conflictCount++;
+
+            conflictService.addConflict({
+
+                conflictType:
+                    "SCHEMA_CONFLICT",
+
+                reason:
+                    schemaAnalysis.reason,
+
+                key,
+
+                source:
+                    "MIGRATION",
+
+                sourceData:
+                    sourceObject,
+
+                destinationData:
+                    destinationObject,
+
+                sourceSchema:
+                    schemaAnalysis.sourceFields,
+
+                destinationSchema:
+                    schemaAnalysis.destinationFields
+
+            });
+
+            console.log(
+                `[SCHEMA CONFLICT] ${key}`
+            );
+
+            continue;
+        }
+
+        if (areObjectsEqual(sourceObject, destinationObject)) {
+
+            synchronizedCount++;
+
+            console.log(
+                `[SYNCED] ${key}`
+            );
+
+            continue;
+        }
+
+        conflictCount++;
+
+        conflictService.addConflict({
+
+            conflictType: "DATA_CONFLICT",
+
+            reason: "Values differ during migration",
+
             key,
-            sourceValue
-        );
 
-        migratedCount++;
+            source: "MIGRATION",
 
-        console.log(
-            `[MIGRATED] ${key}`
-        );
+            sourceData: sourceObject,
 
-        continue;
+            destinationData: destinationObject,
+
+            sourceSchema: schemaAnalysis.sourceFields,
+
+            destinationSchema: schemaAnalysis.destinationFields
+        });
+
+        console.log(`[DATA CONFLICT] ${key}`);
     }
 
-    const sourceObject = JSON.parse(sourceValue);
+    const summary = {
 
-    const destinationObject = JSON.parse(destinationValue);
+        totalUsersFound:
+            keys.length,
 
-    if (areObjectsEqual(sourceObject, destinationObject)) {
+        migratedUsers:
+            migratedCount,
 
-        synchronizedCount++;
+        synchronizedUsers:
+            synchronizedCount,
 
-        console.log(
-            `[SYNCED] ${key}`
-        );
+        conflictsDetected:
+            conflictCount
+    };
 
-        continue;
+    console.log("Migration Summary:", summary);
+
+    return summary;
+
     }
-
-    conflictCount++;
-
-    conflicts.push({
-        source: "MIGRATION",
-        key,
-        redisA: sourceObject,
-        redisB: destinationObject
-    });
-
-    console.log(`[CONFLICT] ${key}`);
-}
-
-conflictService.setMigrationConflicts(conflicts);
-
-const summary = {
-
-    totalUsersFound:
-        keys.length,
-
-    migratedUsers:
-        migratedCount,
-
-    synchronizedUsers:
-        synchronizedCount,
-
-    conflictsDetected:
-        conflictCount
-};
-
-console.log("Migration Summary:", summary);
-
-return summary;
-
-}
 
 module.exports = {
 migrateUsers

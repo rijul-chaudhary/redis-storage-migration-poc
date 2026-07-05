@@ -1,3 +1,4 @@
+const {areSchemasCompatible} = require("./schemaCompatibilityService");
 const {areObjectsEqual} = require("./objectComparisonService");
 
 const redisAClient = require("../config/redisAClient");
@@ -30,8 +31,51 @@ async function replicateSet(key) {
     }
 
     const redisAObject = JSON.parse(redisAValue);
-
     const redisBObject = JSON.parse(redisBValue);
+
+    const schemaAnalysis =
+        areSchemasCompatible(
+            redisAObject,
+            redisBObject
+        );
+
+    if (
+        !schemaAnalysis.compatible
+    ) {
+
+        conflictService.addConflict({
+
+            conflictType:
+                "SCHEMA_CONFLICT",
+
+            reason:
+                schemaAnalysis.reason,
+
+            key,
+
+            source:
+                "CDC",
+
+            sourceData:
+                redisAObject,
+
+            destinationData:
+                redisBObject,
+
+            sourceSchema:
+                schemaAnalysis.sourceFields,
+
+            destinationSchema:
+                schemaAnalysis.destinationFields
+
+        });
+
+        console.log(
+            `[CDC SCHEMA CONFLICT] ${key}`
+        );
+
+        return;
+    }
 
     if (
     areObjectsEqual(
@@ -40,19 +84,32 @@ async function replicateSet(key) {
         )
     ) {
 
-    console.log(`[CDC SYNCED] ${key} already identical`);
+        console.log(`[CDC SYNCED] ${key} already identical`);
 
         return;
     }
 
     conflictService.addConflict({
-        source: "CDC",
+
+        conflictType: "DATA_CONFLICT",
+
+        reason: "Values differ for compatible schemas",
+
         key,
-        redisA: redisAObject,
-        redisB: redisBObject
+
+        source: "CDC",
+
+        sourceData: redisAObject,
+
+        destinationData: redisBObject,
+
+        sourceSchema:
+            schemaAnalysis.sourceFields,
+        destinationSchema:
+            schemaAnalysis.destinationFields,
     });
 
-    console.log(`[CDC CONFLICT] ${key}`);
+    console.log(`[CDC DATA CONFLICT] ${key}`);
 }
 
 async function replicateDelete(key) {

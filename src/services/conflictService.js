@@ -1,6 +1,6 @@
 let pendingConflicts = [];
 
-function setMigrationConflicts(conflicts) {
+function clearMigrationConflicts() {
 
     pendingConflicts =
         pendingConflicts.filter(
@@ -8,26 +8,56 @@ function setMigrationConflicts(conflicts) {
                 conflict.source !==
                 "MIGRATION"
         );
-
-    pendingConflicts.push(
-        ...conflicts
-    );
 }
 
 function addConflict(conflict) {
 
     const existingConflict =
-    pendingConflicts.find(
-        item =>
-            item.key === conflict.key &&
-            item.source === conflict.source
-    );
+        pendingConflicts.find(
+            item =>
+                item.key === conflict.key &&
+                item.source === conflict.source
+        );
 
     if (existingConflict) {
         return;
     }
 
-    pendingConflicts.push(conflict);
+    const conflictId = `${Date.now()}-${conflict.key}`;
+
+    pendingConflicts.push({
+        conflictId,
+
+        conflictType:
+            conflict.conflictType,
+
+        reason:
+            conflict.reason,
+
+        key:
+            conflict.key,
+
+        source:
+            conflict.source,
+
+        sourceData:
+            conflict.sourceData,
+
+        destinationData:
+            conflict.destinationData,
+
+        sourceSchema:
+            conflict.sourceSchema,
+
+        destinationSchema:
+            conflict.destinationSchema,
+
+        detectedAt:
+            new Date().toISOString(),
+
+        resolutionStatus:
+            "PENDING"
+    });
 }
 
 function getConflicts() {
@@ -56,7 +86,8 @@ function getMigrationConflicts() {
 
     return pendingConflicts.filter(
         conflict =>
-            conflict.source === "MIGRATION"
+            conflict.source ===
+            "MIGRATION"
     );
 }
 
@@ -64,16 +95,17 @@ function getCdcConflicts() {
 
     return pendingConflicts.filter(
         conflict =>
-            conflict.source === "CDC"
+            conflict.source ===
+            "CDC"
     );
 }
 
 module.exports = {
-    setMigrationConflicts,
     addConflict,
     getConflicts,
     getConflict,
     removeConflict,
+    clearMigrationConflicts,
     getMigrationConflicts,
     getCdcConflicts
 };
