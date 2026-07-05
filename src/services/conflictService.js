@@ -1,31 +1,24 @@
-let pendingConflicts = [];
+const conflictRepository = require("../repositories/conflictRepository");
 
 function clearMigrationConflicts() {
 
-    pendingConflicts =
-        pendingConflicts.filter(
-            conflict =>
-                conflict.source !==
-                "MIGRATION"
-        );
+    conflictRepository.removeMigrationConflicts();
 }
 
 function addConflict(conflict) {
 
-    const existingConflict =
-        pendingConflicts.find(
-            item =>
-                item.key === conflict.key &&
-                item.source === conflict.source
-        );
-
-    if (existingConflict) {
+    if (
+        conflictRepository.existsConflict(
+            conflict.key,
+            conflict.source
+        )
+    ) {
         return;
     }
 
     const conflictId = `${Date.now()}-${conflict.key}`;
 
-    pendingConflicts.push({
+    conflictRepository.saveConflict({
         conflictId,
 
         conflictType:
@@ -63,47 +56,33 @@ function addConflict(conflict) {
 
         resolutionStatus:
             "PENDING"
+
     });
 }
 
 function getConflicts() {
 
-    return pendingConflicts;
+    return conflictRepository.findAllConflicts();
 }
 
 function getConflict(key) {
 
-    return pendingConflicts.find(
-        conflict =>
-            conflict.key === key
-    );
+    return conflictRepository.findConflictByKey(key);
 }
 
 function removeConflict(key) {
 
-    pendingConflicts =
-        pendingConflicts.filter(
-            conflict =>
-                conflict.key !== key
-        );
+    conflictRepository.removeConflictByKey(key);
 }
 
 function getMigrationConflicts() {
 
-    return pendingConflicts.filter(
-        conflict =>
-            conflict.source ===
-            "MIGRATION"
-    );
+    return conflictRepository.findMigrationConflicts();
 }
 
 function getCdcConflicts() {
 
-    return pendingConflicts.filter(
-        conflict =>
-            conflict.source ===
-            "CDC"
-    );
+    return conflictRepository.findCdcConflicts();
 }
 
 module.exports = {
