@@ -1,14 +1,16 @@
+const { randomUUID } = require("crypto");
 const conflictRepository = require("../repositories/conflictRepository");
 
-function clearMigrationConflicts() {
+async function clearMigrationConflicts() {
 
-    conflictRepository.removeMigrationConflicts();
+    await conflictRepository.removeMigrationConflicts();
+
 }
 
-function addConflict(conflict) {
+async function addConflict(conflict) {
 
     if (
-        conflictRepository.existsConflict(
+        await conflictRepository.existsConflict(
             conflict.key,
             conflict.source
         )
@@ -16,9 +18,10 @@ function addConflict(conflict) {
         return;
     }
 
-    const conflictId = `${Date.now()}-${conflict.key}`;
+    const conflictId = randomUUID();
 
-    conflictRepository.saveConflict({
+    await conflictRepository.saveConflict({
+
         conflictId,
 
         conflictType:
@@ -58,39 +61,53 @@ function addConflict(conflict) {
             "PENDING"
 
     });
+
 }
 
-function getConflicts() {
+async function getConflicts() {
 
-    return conflictRepository.findAllConflicts();
+    return await conflictRepository.findAllConflicts();
+
 }
 
-function getConflict(key) {
+async function getConflict(key) {
 
-    return conflictRepository.findConflictByKey(key);
+    return await conflictRepository.findConflictByKey(key);
+
 }
 
-function removeConflict(key) {
+async function removeConflict(key) {
 
-    conflictRepository.removeConflictByKey(key);
+    await conflictRepository.removeConflictByKey(key);
+
 }
 
-function getMigrationConflicts() {
+async function getMigrationConflicts() {
 
-    return conflictRepository.findMigrationConflicts();
+    return await conflictRepository.findMigrationConflicts();
+
 }
 
-function getCdcConflicts() {
+async function getCdcConflicts() {
 
-    return conflictRepository.findCdcConflicts();
+    return await conflictRepository.findCdcConflicts();
+
 }
 
 module.exports = {
+
     addConflict,
+
     getConflicts,
+
     getConflict,
+
     removeConflict,
+
     clearMigrationConflicts,
+
     getMigrationConflicts,
+
     getCdcConflicts
+
 };

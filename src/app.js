@@ -11,6 +11,7 @@ const appBRoutes = require("./routes/appBRoutes");
 
 const redisAClient = require("./config/redisAClient");
 const redisBClient = require("./config/redisBClient");
+const redisConflictClient = require("./config/redisConflictClient");
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.get("/health", (req, res) => {
 
     const redisAHealthy = redisAClient.isReady;
     const redisBHealthy = redisBClient.isReady;
+    const redisConflictHealthy = redisConflictClient.isReady;
 
     let overallStatus = "UP";
 
@@ -55,7 +57,8 @@ app.get("/health", (req, res) => {
     res.json({
         status: overallStatus,
         redisA: redisAHealthy ? "connected" : "disconnected",
-        redisB: redisBHealthy ? "connected" : "disconnected"
+        redisB: redisBHealthy ? "connected" : "disconnected",
+        redisConflict: redisConflictHealthy ? "connected" : "disconnected"
     });
 
 });
@@ -69,6 +72,9 @@ async function startServer() {
 
         await redisBClient.connect();
         console.log("Connected to Redis B");
+
+        await redisConflictClient.connect();
+        console.log("Connected to Redis Conflict");
 
         await redisAClient.configSet("notify-keyspace-events", "KEA");
 

@@ -44,7 +44,7 @@ async function replicateSet(key) {
         !schemaAnalysis.compatible
     ) {
 
-        conflictService.addConflict({
+        await conflictService.addConflict({
 
             conflictType:
                 "SCHEMA_CONFLICT",
@@ -96,7 +96,7 @@ async function replicateSet(key) {
         return;
     }
 
-    conflictService.addConflict({
+    await conflictService.addConflict({
 
         conflictType: "DATA_CONFLICT",
 

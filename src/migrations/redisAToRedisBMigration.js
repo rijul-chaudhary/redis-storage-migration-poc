@@ -9,7 +9,7 @@ const conflictService = require("../services/conflictService");
 
 async function migrateUsers() {
 
-    conflictService.clearMigrationConflicts();
+    await conflictService.clearMigrationConflicts();
 
     const keys = await redisAClient.keys("user:*");
 
@@ -56,7 +56,7 @@ async function migrateUsers() {
 
             conflictCount++;
 
-            conflictService.addConflict({
+            await conflictService.addConflict({
 
                 conflictType:
                     "SCHEMA_CONFLICT",
@@ -109,7 +109,7 @@ async function migrateUsers() {
 
         conflictCount++;
 
-        conflictService.addConflict({
+        await conflictService.addConflict({
 
             conflictType: "DATA_CONFLICT",
 
