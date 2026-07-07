@@ -74,7 +74,13 @@ async function replicateSet(key) {
                 schemaAnalysis.sourceFields,
 
             destinationSchema:
-                schemaAnalysis.destinationFields
+                schemaAnalysis.destinationFields,
+
+            analysis: analyzeConflict({
+
+                conflictType: "SCHEMA_CONFLICT"
+
+            })
 
         });
 

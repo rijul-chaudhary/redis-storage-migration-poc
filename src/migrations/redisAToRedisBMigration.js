@@ -86,7 +86,13 @@ async function migrateUsers() {
                     schemaAnalysis.sourceFields,
 
                 destinationSchema:
-                    schemaAnalysis.destinationFields
+                    schemaAnalysis.destinationFields,
+
+                analysis: analyzeConflict({
+
+                    conflictType: "SCHEMA_CONFLICT"
+
+                })
 
             });
 
@@ -107,7 +113,7 @@ async function migrateUsers() {
             synchronizedCount++;
 
             console.log(
-                `[SYNCED ${key}]`
+                `[SYNCED] ${key}`
             );
 
             continue;

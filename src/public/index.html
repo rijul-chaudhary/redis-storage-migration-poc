@@ -3,8 +3,13 @@
 <html>
 
 <head>
+
+    <meta charset="UTF-8">
+
     <title>Redis Migration & CDC POC</title>
+
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
@@ -13,99 +18,103 @@
 
 <div class="app-sections">
 
-<div class="app-card">
+    <div class="app-card">
 
-    <h2>Application A (Redis A)</h2>
+        <h2>Application A (Redis A)</h2>
 
-    <input id="appAId" placeholder="ID">
-    <input id="appAName" placeholder="Name">
-    <input id="appAEmail" placeholder="Email">
+        <input id="appAId" placeholder="ID">
 
-    <div>
-        <button onclick="appACreate()">Create</button>
-        <button onclick="appAUpdate()">Update</button>
-        <button onclick="appADelete()">Delete</button>
+        <input id="appAName" placeholder="Name">
+
+        <input id="appAEmail" placeholder="Email">
+
+        <div>
+
+            <button onclick="appACreate()">Create</button>
+            <button onclick="appAUpdate()">Update</button>
+            <button onclick="appADelete()">Delete</button>
+
+        </div>
+
     </div>
 
-</div>
+    <div class="app-card">
 
-<div class="app-card">
+        <h2>Application B (Redis B)</h2>
 
-    <h2>Application B (Redis B)</h2>
+        <input id="appBId" placeholder="ID">
 
-    <input id="appBId" placeholder="ID">
-    <input id="appBName" placeholder="Name">
-    <input id="appBEmail" placeholder="Email">
+        <input id="appBName" placeholder="Name">
 
-    <div>
-        <button onclick="appBCreate()">Create</button>
-        <button onclick="appBUpdate()">Update</button>
-        <button onclick="appBDelete()">Delete</button>
+        <input id="appBEmail" placeholder="Email">
+
+        <div>
+
+            <button onclick="appBCreate()">Create</button>
+            <button onclick="appBUpdate()">Update</button>
+            <button onclick="appBDelete()">Delete</button>
+
+        </div>
+
     </div>
-
-</div>
 
 </div>
 
 <hr>
 
-<h2>Migration</h2>
+<div class="migration-panel">
 
-<button onclick="migrate()">
-    Migrate Redis A → Redis B
-</button>
+    <h2>Migration</h2>
 
-<div id="status"></div>
+    <button onclick="migrate()">
+
+        Migrate Redis A → Redis B
+
+    </button>
+
+    <div id="status"></div>
+
+</div>
 
 <hr>
 
 <h2>Migration Conflicts</h2>
 
-<div id="migrationConflicts"></div>
+<div
+    id="migrationConflicts"
+    class="conflict-container"
+></div>
 
 <hr>
 
 <h2>CDC Conflicts</h2>
 
-<div id="cdcConflicts"></div>
+<div
+    id="cdcConflicts"
+    class="conflict-container"
+></div>
 
 <hr>
 
-<div class="tables">
+<h2>Current Redis Data</h2>
 
-<div>
+<div class="json-sections">
 
-    <h2>Redis A</h2>
+    <div class="json-card">
 
-    <table id="redisATable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+        <h3>Redis A</h3>
 
-</div>
+        <div id="redisATable"></div>
 
-<div>
+    </div>
 
-    <h2>Redis B</h2>
+    <div class="json-card">
 
-    <table id="redisBTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+        <h3>Redis B</h3>
 
-</div>
+        <div id="redisBTable"></div>
+
+    </div>
 
 </div>
 

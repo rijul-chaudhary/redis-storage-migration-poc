@@ -19,25 +19,32 @@ async function refreshTables() {
     );
 }
 
-function populateTable(tableId, users) {
+function populateTable(containerId, users) {
 
-    const tbody =
-        document.querySelector(
-            `#${tableId} tbody`
-        );
+    const container =
+        document.getElementById(containerId);
 
-    tbody.innerHTML = "";
+    container.innerHTML = "";
 
     users.forEach(user => {
 
-        tbody.innerHTML += `
-            <tr>
-                <td>${user.id}</td>
-                <td>${user.name}</td>
-                <td>${user.email}</td>
-            </tr>
+        const card =
+            document.createElement("div");
+
+        card.className = "data-card";
+
+        card.innerHTML = `
+
+            <h4>user:${user.id}</h4>
+
+            <pre>${JSON.stringify(user, null, 4)}</pre>
+
         `;
+
+        container.appendChild(card);
+
     });
+
 }
 
 function getAppAInput() {
@@ -315,6 +322,12 @@ async function migrate() {
     await loadConflicts();
 }
 
+function formatTimestamp(timestamp) {
+
+    return new Date(timestamp).toLocaleString();
+
+}
+
 async function loadConflicts() {
 
     const migration =
@@ -341,117 +354,261 @@ async function loadConflicts() {
 
     cdcContainer.innerHTML = "";
 
-    migration.conflicts.forEach(
-        conflict => {
+    migration.conflicts.forEach(conflict => {
 
-            migrationContainer.innerHTML += `
-                <div class="conflict-card">
+        migrationContainer.innerHTML += `
 
-                    <h3>${conflict.key}</h3>
+        <div class="conflict-card">
 
-                    <div class="conflict-side">
+            <h3>${conflict.key}</h3>
 
-                        <h4>Redis A</h4>
+            <p>
 
-                            <p>ID: ${conflict.redisA.id}</p>
-                            <p>Name: ${conflict.redisA.name}</p>
-                            <p>Email: ${conflict.redisA.email}</p>
+                <strong>Conflict Type:</strong>
 
-                     </div>
+                ${conflict.conflictType}
 
-                    <div class="conflict-side">
+            </p>
 
-                        <h4>Redis B</h4>
+            <p>
 
-                            <p>ID: ${conflict.redisB.id}</p>
-                            <p>Name: ${conflict.redisB.name}</p>
-                            <p>Email: ${conflict.redisB.email}</p>
+                <strong>Reason:</strong>
 
-                    </div>
+                ${conflict.reason}
 
-                <button
-                    onclick="
-                        resolveMigrationConflict(
-                            '${conflict.key}',
-                            'overwrite'
-                        )
-                    "
-                >
-                    Overwrite Redis B
-                </button>
+            </p>
 
-                <button
-                    onclick="
-                        resolveMigrationConflict(
-                            '${conflict.key}',
-                            'skip'
-                        )
-                    "
-                >
-                    Skip
-                </button>
+            <div class="analysis-box">
 
-                 </div>
-            `;
-        }
-    );
+                <h4>Recommendation</h4>
 
-    cdc.conflicts.forEach(
-        conflict => {
+                <p>
 
-            cdcContainer.innerHTML += `
-                <div class="conflict-card">
+                    <strong>Suggested Action:</strong>
 
-                    <h3>${conflict.key}</h3>
+                    ${conflict.analysis?.suggestedAction === "OVERWRITE"
 
-                    <div class="conflict-side">
+                        ? "Overwrite Redis B"
 
-                        <h4>Redis A</h4>
+                        : conflict.analysis?.suggestedAction === "KEEP_DESTINATION"
 
-                        <p>ID: ${conflict.redisA.id}</p>
-                        <p>Name: ${conflict.redisA.name}</p>
-                        <p>Email: ${conflict.redisA.email}</p>
+                            ? "Keep Redis B"
 
-                    </div>
+                            : "Manual Review"}
 
-                    <div class="conflict-side">
+                </p>
 
-                        <h4>Redis B</h4>
+                <p>
 
-                        <p>ID: ${conflict.redisB.id}</p>
-                        <p>Name: ${conflict.redisB.name}</p>
-                        <p>Email: ${conflict.redisB.email}</p>
+                    ${conflict.analysis?.reason ?? "N/A"}
 
-                    </div>
+                </p>
 
-                    </div>
+                <p>
 
-                    <button
-                        onclick="
-                            resolveCdcConflict(
-                                '${conflict.key}',
-                                'overwrite'
-                            )
-                        "
-                    >
-                        Overwrite Redis B
-                    </button>
+                    <strong>Source Processed At:</strong>
 
-                    <button
-                        onclick="
-                            resolveCdcConflict(
-                                '${conflict.key}',
-                                'skip'
-                            )
-                        "
-                    >
-                        Skip
-                    </button>
+                    ${formatTimestamp(conflict.sourceMetadata.processedAt)}
+
+                </p>
+
+                <p>
+
+                    <strong>Destination Processed At:</strong>
+
+                    ${formatTimestamp(conflict.destinationMetadata.processedAt)}
+
+                </p>
+
+                <p>
+
+                    <strong>Field Data Mismatch</strong>
+
+                </p>
+
+                <ul>
+
+                    ${(conflict.analysis?.conflictingFields ?? [])
+                        .map(field=>`<li>${field}</li>`)
+                        .join("")}
+
+                </ul>
+
+            </div>
+
+            <div class="conflict-grid">
+
+                <div class="conflict-column">
+
+                    <h4>Source</h4>
+
+                    <pre>
+
+    ${JSON.stringify(conflict.sourceData,null,4)}
+
+                    </pre>
 
                 </div>
-            `;
-        }
-    );
+
+                <div class="conflict-column">
+
+                    <h4>Destination</h4>
+
+                    <pre>
+
+    ${JSON.stringify(conflict.destinationData,null,4)}
+
+                    </pre>
+
+                </div>
+
+            </div>
+
+            <button
+                class="overwrite"
+                onclick="resolveMigrationConflict('${conflict.key}','overwrite')">
+
+                Overwrite Redis B
+
+            </button>
+
+            <button
+                class="keep"
+                onclick="resolveMigrationConflict('${conflict.key}','skip')">
+
+                Keep Destination
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+    cdc.conflicts.forEach(conflict => {
+
+        cdcContainer.innerHTML += `
+
+        <div class="conflict-card">
+
+            <h3>${conflict.key}</h3>
+
+            <p>
+
+                <strong>Conflict Type:</strong>
+
+                ${conflict.conflictType}
+
+            </p>
+
+            <p>
+
+                <strong>Reason:</strong>
+
+                ${conflict.reason}
+
+            </p>
+
+            <div class="analysis-box">
+
+                <h4>Recommendation</h4>
+
+                <p>
+
+                    <strong>Suggested Action:</strong>
+
+                    ${conflict.analysis?.suggestedAction === "OVERWRITE"
+
+                        ? "Overwrite Redis B"
+
+                        : conflict.analysis?.suggestedAction === "KEEP_DESTINATION"
+
+                            ? "Keep Redis B"
+
+                            : "Manual Review"}
+
+                </p>
+
+                <p>
+
+                    ${conflict.analysis?.reason ?? "N/A"}
+
+                </p>
+
+                <p>
+
+                    <strong>Source Processed At:</strong>
+
+                    ${formatTimestamp(conflict.sourceMetadata.processedAt)}
+
+                </p>
+
+                <p>
+
+                    <strong>Destination Processed At:</strong>
+
+                    ${formatTimestamp(conflict.destinationMetadata.processedAt)}
+
+                </p>
+
+                <p>
+
+                    <strong>Field Data Mismatch</strong>
+
+                </p>
+
+                <ul>
+
+                    ${(conflict.analysis?.conflictingFields ?? [])
+                        .map(field => `<li>${field}</li>`)
+                        .join("")}
+
+                </ul>
+
+            </div>
+
+            <div class="conflict-grid">
+
+                <div class="conflict-column">
+
+                    <h4>Source</h4>
+
+                    <pre>${JSON.stringify(conflict.sourceData, null, 4)}</pre>
+
+                </div>
+
+                <div class="conflict-column">
+
+                    <h4>Destination</h4>
+
+                    <pre>${JSON.stringify(conflict.destinationData, null, 4)}</pre>
+
+                </div>
+
+            </div>
+
+            <button
+                class="overwrite"
+                onclick="resolveCdcConflict('${conflict.key}','overwrite')">
+
+                Overwrite Redis B
+
+            </button>
+
+            <button
+                class="keep"
+                onclick="resolveCdcConflict('${conflict.key}','skip')">
+
+                Keep Destination
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
 }
 
 async function resolveMigrationConflict(
