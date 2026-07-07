@@ -1,6 +1,7 @@
 const {areSchemasCompatible} = require("../services/schemaCompatibilityService");
-const {areObjectsEqual} = require("../services/objectComparisonService");
+const {compareObjects} = require("../services/objectComparisonService");
 const {buildMetadata} = require("../services/metadataService");
+const {analyzeConflict} = require("../services/conflictAnalysisService");
 
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
@@ -96,18 +97,43 @@ async function migrateUsers() {
             continue;
         }
 
-        if (areObjectsEqual(sourceObject, destinationObject)) {
+        const comparisonResult = compareObjects(
+                sourceObject,
+                destinationObject
+            );
+
+        if (comparisonResult.equal) {
 
             synchronizedCount++;
 
             console.log(
-                `[SYNCED] ${key}`
+                `[SYNCED ${key}]`
             );
 
             continue;
         }
 
         conflictCount++;
+
+        const sourceMetadata =
+        buildMetadata(sourceObject);
+
+    const destinationMetadata =
+        buildMetadata(destinationObject);
+
+    const analysis =
+        analyzeConflict({
+
+            conflictType:
+                "DATA_CONFLICT",
+
+            comparisonResult,
+
+            sourceMetadata,
+
+            destinationMetadata
+
+        });
 
         await conflictService.addConflict({
 
@@ -123,11 +149,11 @@ async function migrateUsers() {
 
             destinationData: destinationObject,
 
-            sourceMetadata:
-                buildMetadata(sourceObject),
+            sourceMetadata,
 
-            destinationMetadata:
-                buildMetadata(destinationObject),
+            destinationMetadata,
+
+            analysis,
 
             sourceSchema: schemaAnalysis.sourceFields,
 

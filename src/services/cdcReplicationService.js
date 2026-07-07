@@ -1,6 +1,7 @@
 const {areSchemasCompatible} = require("./schemaCompatibilityService");
-const {areObjectsEqual} = require("./objectComparisonService");
+const {compareObjects} = require("./objectComparisonService");
 const {buildMetadata} = require("./metadataService");
+const {analyzeConflict} = require("./conflictAnalysisService");
 
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
@@ -84,17 +85,41 @@ async function replicateSet(key) {
         return;
     }
 
-    if (
-    areObjectsEqual(
-        redisAObject,
-        redisBObject
-        )
-    ) {
+    const comparisonResult =
+        compareObjects(
+            redisAObject,
+            redisBObject
+        );
 
-        console.log(`[CDC SYNCED] ${key} already identical`);
+    if (comparisonResult.equal) {
+
+        console.log(
+            `[CDC SYNCED ${key}]`
+        );
 
         return;
+
     }
+
+    const sourceMetadata =
+        buildMetadata(redisAObject);
+
+    const destinationMetadata =
+        buildMetadata(redisBObject);
+
+    const analysis =
+        analyzeConflict({
+
+            conflictType:
+                "DATA_CONFLICT",
+
+            comparisonResult,
+
+            sourceMetadata,
+
+            destinationMetadata
+
+        });
 
     await conflictService.addConflict({
 
@@ -110,11 +135,11 @@ async function replicateSet(key) {
 
         destinationData: redisBObject,
 
-        sourceMetadata:
-            buildMetadata(redisAObject),
+        sourceMetadata,
 
-        destinationMetadata:
-            buildMetadata(redisBObject),
+        destinationMetadata,
+
+        analysis,
 
         sourceSchema:
             schemaAnalysis.sourceFields,

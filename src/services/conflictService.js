@@ -54,6 +54,9 @@ async function addConflict(conflict) {
         destinationSchema:
             conflict.destinationSchema,
 
+        analysis:
+            conflict.analysis,
+
         detectedAt:
             new Date().toISOString(),
 

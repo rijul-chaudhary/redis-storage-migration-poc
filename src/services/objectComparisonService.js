@@ -1,29 +1,38 @@
-function areObjectsEqual(objectA, objectB) {
+function compareObjects(sourceObject, destinationObject) {
 
-    const objectAKeys = Object.keys(objectA);
-    const objectBKeys = Object.keys(objectB);
+    const conflictingFields = [];
 
-    for (const key of objectAKeys) {
+    const fields = new Set([
 
-        if (!(key in objectB)) {
-            return false;
+        ...Object.keys(sourceObject),
+
+        ...Object.keys(destinationObject)
+
+    ]);
+
+    for (const field of fields) {
+
+        if (sourceObject[field] !== destinationObject[field]) {
+
+            conflictingFields.push(field);
+
         }
 
-        if (objectA[key] !== objectB[key]) {
-            return false;
-        }
     }
 
-    for (const key of objectBKeys) {
+    return {
 
-        if (!(key in objectA)) {
-            return false;
-        }
-    }
+        equal:
+            conflictingFields.length === 0,
 
-    return true;
+        conflictingFields
+
+    };
+
 }
 
 module.exports = {
-    areObjectsEqual
+
+    compareObjects
+
 };
