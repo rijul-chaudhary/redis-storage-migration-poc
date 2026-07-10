@@ -70,6 +70,10 @@ async function migrateUsers() {
                 source:
                     "MIGRATION",
 
+                sourceRecord: sourceObject,
+                
+                destinationRecord: destinationObject,
+
                 sourceData:
                     sourceObject.data,
 
@@ -150,6 +154,10 @@ async function migrateUsers() {
             key,
 
             source: "MIGRATION",
+
+            sourceRecord: sourceObject,
+
+            destinationRecord: destinationObject,
 
             sourceData: sourceObject.data,
 

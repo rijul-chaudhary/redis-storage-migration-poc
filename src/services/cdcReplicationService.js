@@ -61,6 +61,12 @@ async function replicateSet(key) {
             source:
                 "CDC",
 
+            sourceRecord:
+                redisAObject,
+
+            destinationRecord:
+                redisBObject,
+
             sourceData:
                 redisAData,
 
@@ -139,6 +145,12 @@ async function replicateSet(key) {
         key,
 
         source: "CDC",
+
+        sourceRecord:
+            redisAObject,
+
+        destinationRecord:
+            redisBObject,
 
         sourceData: redisAData,
 

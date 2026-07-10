@@ -22,8 +22,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const conflictRoutes = require("./routes/conflictRoutes");
 
 const {startRedisACDCListener} = require("./cdc/redisAChangeListener");
-const { startRedisBCDCListener } =
-    require("./cdc/redisBChangeListener");
+const {startRedisBCDCListener} = require("./cdc/redisBChangeListener");
 
 const path = require("path");
 
@@ -49,10 +48,18 @@ app.get("/health", (req, res) => {
 
     let overallStatus = "UP";
 
-    if (!redisAHealthy && !redisBHealthy) {
+    if (
+        !redisAHealthy &&
+        !redisBHealthy &&
+        !redisConflictHealthy
+    ) {
         overallStatus = "DOWN";
     }
-    else if (!redisAHealthy || !redisBHealthy) {
+    else if (
+        !redisAHealthy ||
+        !redisBHealthy ||
+        !redisConflictHealthy
+    ) {
         overallStatus = "DEGRADED";
     }
 
@@ -77,16 +84,6 @@ async function startServer() {
 
         await redisConflictClient.connect();
         console.log("Connected to Redis Conflict");
-
-        await redisAClient.configSet("notify-keyspace-events", "KEA");
-        await redisBClient.configSet(
-            "notify-keyspace-events",
-            "KEA"
-        );
-
-        const result = await redisAClient.configGet("notify-keyspace-events");
-
-        console.log("Keyspace Notifications:", result);
 
         await startRedisACDCListener();
         await startRedisBCDCListener();

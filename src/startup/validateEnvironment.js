@@ -1,6 +1,7 @@
 const requiredVariables = [
     "REDIS_A_URL",
     "REDIS_B_URL",
+    "REDIS_CONFLICT_URL",
     "PORT"
 ];
 

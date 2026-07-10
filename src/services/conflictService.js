@@ -36,6 +36,12 @@ async function addConflict(conflict) {
         source:
             conflict.source,
 
+        sourceRecord:
+            conflict.sourceRecord,
+
+        destinationRecord:
+            conflict.destinationRecord,
+
         sourceData:
             conflict.sourceData,
 

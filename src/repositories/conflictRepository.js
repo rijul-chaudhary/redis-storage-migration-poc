@@ -77,7 +77,7 @@ async function removeConflictByKey(key) {
         `conflict:${conflict.conflictId}`;
 
     await redisConflictClient.del(
-        ...conflictKey
+        conflictKey
     );
 
     await redisConflictClient.sRem(
@@ -100,7 +100,7 @@ async function removeMigrationConflicts() {
     if (conflictKeys.length > 0) {
 
         await redisConflictClient.del(
-            ...conflictKeys
+            conflictKeys
         );
 
     }

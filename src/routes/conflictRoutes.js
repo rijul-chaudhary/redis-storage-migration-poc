@@ -57,7 +57,7 @@ router.post(
                 await redisBClient.set(
                     key,
                     JSON.stringify(
-                        conflict.sourceData
+                        conflict.sourceRecord
                     )
                 );
             }
@@ -110,7 +110,7 @@ router.post(
                 await redisBClient.set(
                     key,
                     JSON.stringify(
-                        conflict.sourceData
+                        conflict.sourceRecord
                     )
                 );
             }

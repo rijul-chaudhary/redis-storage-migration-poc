@@ -119,10 +119,21 @@ async function getAllUsers() {
             await redisClient.get(key);
 
         if (data) {
+
             const record =
                 JSON.parse(data);
 
-            users.push(record.data);
+            if (record.data) {
+
+                users.push(record.data);
+
+            } else {
+
+                console.warn(
+                    `[WARNING] Skipping malformed Redis record: ${key}`
+                );
+
+            }
         }
     }
 
