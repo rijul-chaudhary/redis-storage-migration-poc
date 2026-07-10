@@ -1,3 +1,7 @@
+const {
+    touchMetadata
+} = require("../services/recordMetadataService");
+
 const redisClient = require("../config/redisAClient");
 
 async function createUser(user) {
@@ -13,9 +17,20 @@ async function createUser(user) {
         );
     }
 
+    const record = {
+
+        data: user,
+
+        __metadata: {}
+
+    };
+
     await redisClient.set(
+
         key,
-        JSON.stringify(user)
+
+        JSON.stringify(record)
+
     );
 
     return user;
@@ -32,7 +47,9 @@ async function getUser(id) {
         return null;
     }
 
-    return JSON.parse(data);
+    const record = JSON.parse(data);
+
+    return record.data;
 }
 
 async function deleteUser(id) {
@@ -56,14 +73,34 @@ async function updateUser(id, updatedUser) {
         return null;
     }
 
+    const existingRecord =
+        JSON.parse(existingUser);
+
     const user = {
+
         id,
+
         ...updatedUser
+
     };
 
+    const updatedRecord = {
+
+        data: user,
+
+        __metadata:
+            existingRecord.__metadata || {}
+
+    };
+
+    const result = touchMetadata(updatedRecord);
+
     await redisClient.set(
+
         key,
-        JSON.stringify(user)
+
+        JSON.stringify(result.record)
+
     );
 
     return user;
@@ -82,9 +119,10 @@ async function getAllUsers() {
             await redisClient.get(key);
 
         if (data) {
-            users.push(
-                JSON.parse(data)
-            );
+            const record =
+                JSON.parse(data);
+
+            users.push(record.data);
         }
     }
 

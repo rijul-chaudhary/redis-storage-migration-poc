@@ -405,19 +405,23 @@ async function loadConflicts() {
                 </p>
 
                 <p>
-
-                    <strong>Source Processed At:</strong>
-
-                    ${formatTimestamp(conflict.sourceMetadata.processedAt)}
-
+                    <strong>Source Created At:</strong>
+                    ${formatTimestamp(conflict.sourceMetadata.createdAt)}
                 </p>
 
                 <p>
+                    <strong>Source Updated At:</strong>
+                    ${formatTimestamp(conflict.sourceMetadata.updatedAt)}
+                </p>
 
-                    <strong>Destination Processed At:</strong>
+                <p>
+                    <strong>Destination Created At:</strong>
+                    ${formatTimestamp(conflict.destinationMetadata.createdAt)}
+                </p>
 
-                    ${formatTimestamp(conflict.destinationMetadata.processedAt)}
-
+                <p>
+                    <strong>Destination Updated At:</strong>
+                    ${formatTimestamp(conflict.destinationMetadata.updatedAt)}
                 </p>
 
                 <p>
@@ -537,19 +541,23 @@ async function loadConflicts() {
                 </p>
 
                 <p>
-
-                    <strong>Source Processed At:</strong>
-
-                    ${formatTimestamp(conflict.sourceMetadata.processedAt)}
-
+                    <strong>Source Created At:</strong>
+                    ${formatTimestamp(conflict.sourceMetadata.createdAt)}
                 </p>
 
                 <p>
+                    <strong>Source Updated At:</strong>
+                    ${formatTimestamp(conflict.sourceMetadata.updatedAt)}
+                </p>
 
-                    <strong>Destination Processed At:</strong>
+                <p>
+                    <strong>Destination Created At:</strong>
+                    ${formatTimestamp(conflict.destinationMetadata.createdAt)}
+                </p>
 
-                    ${formatTimestamp(conflict.destinationMetadata.processedAt)}
-
+                <p>
+                    <strong>Destination Updated At:</strong>
+                    ${formatTimestamp(conflict.destinationMetadata.updatedAt)}
                 </p>
 
                 <p>

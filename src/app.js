@@ -22,6 +22,8 @@ const adminRoutes = require("./routes/adminRoutes");
 const conflictRoutes = require("./routes/conflictRoutes");
 
 const {startRedisACDCListener} = require("./cdc/redisAChangeListener");
+const { startRedisBCDCListener } =
+    require("./cdc/redisBChangeListener");
 
 const path = require("path");
 
@@ -77,12 +79,17 @@ async function startServer() {
         console.log("Connected to Redis Conflict");
 
         await redisAClient.configSet("notify-keyspace-events", "KEA");
+        await redisBClient.configSet(
+            "notify-keyspace-events",
+            "KEA"
+        );
 
         const result = await redisAClient.configGet("notify-keyspace-events");
 
         console.log("Keyspace Notifications:", result);
 
         await startRedisACDCListener();
+        await startRedisBCDCListener();
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);

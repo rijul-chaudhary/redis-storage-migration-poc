@@ -47,8 +47,8 @@ async function migrateUsers() {
 
         const schemaAnalysis =
             areSchemasCompatible(
-                sourceObject,
-                destinationObject
+                sourceObject.data,
+                destinationObject.data
             );
 
         if (
@@ -71,10 +71,10 @@ async function migrateUsers() {
                     "MIGRATION",
 
                 sourceData:
-                    sourceObject,
+                    sourceObject.data,
 
                 destinationData:
-                    destinationObject,
+                    destinationObject.data,
 
                 sourceMetadata:
                     buildMetadata(sourceObject),
@@ -104,8 +104,8 @@ async function migrateUsers() {
         }
 
         const comparisonResult = compareObjects(
-                sourceObject,
-                destinationObject
+                sourceObject.data,
+                destinationObject.data
             );
 
         if (comparisonResult.equal) {
@@ -122,24 +122,24 @@ async function migrateUsers() {
         conflictCount++;
 
         const sourceMetadata =
-        buildMetadata(sourceObject);
+            buildMetadata(sourceObject);
 
-    const destinationMetadata =
-        buildMetadata(destinationObject);
+        const destinationMetadata =
+            buildMetadata(destinationObject);
 
-    const analysis =
-        analyzeConflict({
+        const analysis =
+            analyzeConflict({
 
-            conflictType:
-                "DATA_CONFLICT",
+                conflictType:
+                    "DATA_CONFLICT",
 
-            comparisonResult,
+                comparisonResult,
 
-            sourceMetadata,
+                sourceMetadata,
 
-            destinationMetadata
+                destinationMetadata
 
-        });
+            });
 
         await conflictService.addConflict({
 
@@ -151,9 +151,9 @@ async function migrateUsers() {
 
             source: "MIGRATION",
 
-            sourceData: sourceObject,
+            sourceData: sourceObject.data,
 
-            destinationData: destinationObject,
+            destinationData: destinationObject.data,
 
             sourceMetadata,
 

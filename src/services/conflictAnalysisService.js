@@ -26,17 +26,17 @@ function analyzeConflict({
 
     }
 
-    const sourceProcessedAt =
+    const sourceUpdatedAt =
         new Date(
-            sourceMetadata.processedAt
+            sourceMetadata.updatedAt
         );
 
-    const destinationProcessedAt =
+    const destinationUpdatedAt =
         new Date(
-            destinationMetadata.processedAt
+            destinationMetadata.updatedAt
         );
 
-    if (sourceProcessedAt > destinationProcessedAt) {
+    if (sourceUpdatedAt > destinationUpdatedAt) {
 
         return {
 
@@ -47,7 +47,7 @@ function analyzeConflict({
                 "OVERWRITE",
 
             reason:
-                "Source record was processed later."
+                "Source record was updated later."
 
         };
 
@@ -62,7 +62,7 @@ function analyzeConflict({
         "KEEP_DESTINATION",
 
     reason:
-        "Destination record was processed later."
+        "Destination record was updated later."
 
 };
 

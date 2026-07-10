@@ -17,18 +17,25 @@ function generateContentFingerprint(object) {
 
 }
 
-function buildMetadata(object) {
+function buildMetadata(record) {
 
     return {
 
-        processedAt:
-            new Date().toISOString(),
+        createdAt:
+            record.__metadata.createdAt,
+
+        updatedAt:
+            record.__metadata.updatedAt,
 
         schemaFingerprint:
-            generateSchemaFingerprint(object),
+            generateSchemaFingerprint(
+                record.data
+            ),
 
         contentFingerprint:
-            generateContentFingerprint(object)
+            generateContentFingerprint(
+                record.data
+            )
 
     };
 

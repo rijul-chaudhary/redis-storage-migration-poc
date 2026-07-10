@@ -35,10 +35,13 @@ async function replicateSet(key) {
     const redisAObject = JSON.parse(redisAValue);
     const redisBObject = JSON.parse(redisBValue);
 
+    const redisAData = redisAObject.data;
+    const redisBData = redisBObject.data;
+
     const schemaAnalysis =
         areSchemasCompatible(
-            redisAObject,
-            redisBObject
+            redisAData,
+            redisBData
         );
 
     if (
@@ -59,10 +62,10 @@ async function replicateSet(key) {
                 "CDC",
 
             sourceData:
-                redisAObject,
+                redisAData,
 
             destinationData:
-                redisBObject,
+                redisBData,
 
             sourceMetadata:
                 buildMetadata(redisAObject),
@@ -93,8 +96,8 @@ async function replicateSet(key) {
 
     const comparisonResult =
         compareObjects(
-            redisAObject,
-            redisBObject
+            redisAData,
+            redisBData
         );
 
     if (comparisonResult.equal) {
@@ -137,9 +140,9 @@ async function replicateSet(key) {
 
         source: "CDC",
 
-        sourceData: redisAObject,
+        sourceData: redisAData,
 
-        destinationData: redisBObject,
+        destinationData: redisBData,
 
         sourceMetadata,
 
