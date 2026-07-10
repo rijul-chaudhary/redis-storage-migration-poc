@@ -1,4 +1,7 @@
-const {areObjectsEqual} = require("./objectComparisonService");
+const {areSchemasCompatible} = require("./schemaCompatibilityService");
+const {compareObjects} = require("./objectComparisonService");
+const {buildMetadata} = require("./metadataService");
+const {analyzeConflict} = require("./conflictAnalysisService");
 
 const redisAClient = require("../config/redisAClient");
 const redisBClient = require("../config/redisBClient");
@@ -30,29 +33,131 @@ async function replicateSet(key) {
     }
 
     const redisAObject = JSON.parse(redisAValue);
-
     const redisBObject = JSON.parse(redisBValue);
 
+    const redisAData = redisAObject.data;
+    const redisBData = redisBObject.data;
+
+    const schemaAnalysis =
+        areSchemasCompatible(
+            redisAData,
+            redisBData
+        );
+
     if (
-    areObjectsEqual(
-        redisAObject,
-        redisBObject
-        )
+        !schemaAnalysis.compatible
     ) {
 
-    console.log(`[CDC SYNCED] ${key} already identical`);
+        await conflictService.addConflict({
+
+            conflictType:
+                "SCHEMA_CONFLICT",
+
+            reason:
+                schemaAnalysis.reason,
+
+            key,
+
+            source:
+                "CDC",
+
+            sourceData:
+                redisAData,
+
+            destinationData:
+                redisBData,
+
+            sourceMetadata:
+                buildMetadata(redisAObject),
+
+            destinationMetadata:
+                buildMetadata(redisBObject),
+
+            sourceSchema:
+                schemaAnalysis.sourceFields,
+
+            destinationSchema:
+                schemaAnalysis.destinationFields,
+
+            analysis: analyzeConflict({
+
+                conflictType: "SCHEMA_CONFLICT"
+
+            })
+
+        });
+
+        console.log(
+            `[CDC SCHEMA CONFLICT] ${key}`
+        );
 
         return;
     }
 
-    conflictService.addConflict({
-        source: "CDC",
+    const comparisonResult =
+        compareObjects(
+            redisAData,
+            redisBData
+        );
+
+    if (comparisonResult.equal) {
+
+        console.log(
+            `[CDC SYNCED ${key}]`
+        );
+
+        return;
+
+    }
+
+    const sourceMetadata =
+        buildMetadata(redisAObject);
+
+    const destinationMetadata =
+        buildMetadata(redisBObject);
+
+    const analysis =
+        analyzeConflict({
+
+            conflictType:
+                "DATA_CONFLICT",
+
+            comparisonResult,
+
+            sourceMetadata,
+
+            destinationMetadata
+
+        });
+
+    await conflictService.addConflict({
+
+        conflictType: "DATA_CONFLICT",
+
+        reason: "Values differ for compatible schemas",
+
         key,
-        redisA: redisAObject,
-        redisB: redisBObject
+
+        source: "CDC",
+
+        sourceData: redisAData,
+
+        destinationData: redisBData,
+
+        sourceMetadata,
+
+        destinationMetadata,
+
+        analysis,
+
+        sourceSchema:
+            schemaAnalysis.sourceFields,
+            
+        destinationSchema:
+            schemaAnalysis.destinationFields,
     });
 
-    console.log(`[CDC CONFLICT] ${key}`);
+    console.log(`[CDC DATA CONFLICT] ${key}`);
 }
 
 async function replicateDelete(key) {

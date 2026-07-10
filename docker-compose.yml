@@ -47,9 +47,33 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+  
+
+
+  redis-conflict:
+    image: redis:8.8.0
+    container_name: redis-conflict
+
+    command:
+      - redis-server
+
+    ports:
+      - "6381:6379"
+
+    volumes:
+      - redis-conflict-data:/data
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 
 
 volumes:
   redis-a-data:
   redis-b-data:
+  redis-conflict-data:

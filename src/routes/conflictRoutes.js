@@ -8,22 +8,22 @@ const redisBClient = require("../config/redisBClient");
 
 router.get(
     "/migration",
-    (req, res) => {
+    async (req, res) => {
 
         res.status(200).json({
             conflicts:
-                conflictService.getMigrationConflicts()
+                await conflictService.getMigrationConflicts()
         });
     }
 );
 
 router.get(
     "/cdc",
-    (req, res) => {
+    async (req, res) => {
 
         res.status(200).json({
             conflicts:
-                conflictService.getCdcConflicts()
+                await conflictService.getCdcConflicts()
         });
     }
 );
@@ -40,7 +40,7 @@ router.post(
             } = req.body;
 
             const conflict =
-                conflictService.getConflict(
+                await conflictService.getConflict(
                     key
                 );
 
@@ -57,12 +57,12 @@ router.post(
                 await redisBClient.set(
                     key,
                     JSON.stringify(
-                        conflict.redisA
+                        conflict.sourceData
                     )
                 );
             }
 
-            conflictService.removeConflict(
+            await conflictService.removeConflict(
                 key
             );
 
@@ -93,7 +93,7 @@ router.post(
             } = req.body;
 
             const conflict =
-                conflictService.getConflict(
+                await conflictService.getConflict(
                     key
                 );
 
@@ -110,12 +110,12 @@ router.post(
                 await redisBClient.set(
                     key,
                     JSON.stringify(
-                        conflict.redisA
+                        conflict.sourceData
                     )
                 );
             }
 
-            conflictService.removeConflict(
+            await conflictService.removeConflict(
                 key
             );
 

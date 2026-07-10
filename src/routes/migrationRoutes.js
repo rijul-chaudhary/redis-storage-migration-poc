@@ -35,11 +35,11 @@ router.post("/", async (req, res) => {
 
 router.get(
     "/conflicts",
-    (req, res) => {
+    async (req, res) => {
 
         res.status(200).json({
             conflicts:
-                conflictService.getConflicts()
+                await conflictService.getConflicts()
         });
     }
 );
@@ -56,7 +56,7 @@ router.post(
             } = req.body;
 
             const conflict =
-                conflictService.getConflict(
+                await conflictService.getConflict(
                     key
                 );
 
@@ -73,7 +73,7 @@ router.post(
                 await redisBClient.set(
                     key,
                     JSON.stringify(
-                        conflict.redisA
+                        conflict.sourceData
                     )
                 );
 
@@ -89,7 +89,7 @@ router.post(
                 );
             }
 
-            conflictService.removeConflict(
+            await conflictService.removeConflict(
                 key
             );
 
